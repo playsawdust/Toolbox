@@ -1,0 +1,91 @@
+plugins {
+	id 'java-library'
+	id 'eclipse'
+	id 'net.minecrell.licenser' version '0.4.1'
+	id 'maven-publish'
+}
+
+group = 'com.playsawdust'
+archivesBaseName = 'toolbox'
+version = '2.1.1'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	api 'org.slf4j:slf4j-api:1.7.9'
+	api 'com.google.guava:guava:28.2-jre'
+	
+	compileOnly 'net.java.dev.jna:jna:5.0.0'
+	compileOnly 'net.java.dev.jna:jna-platform:5.0.0'
+}
+
+license {
+	header = file('LICENSE')
+	include '**/*.java'
+	exclude '**/RandomXoshiro256StarStar.java'
+}
+
+java {
+	withJavadocJar()
+	withSourcesJar()
+}
+
+publishing {
+	repositories {
+		maven {
+			// *shrug*
+			url = "file:///home/una/unascribed.com/_subdomains/repo"
+		}
+	}
+	publications {
+		mavenJava(MavenPublication) {
+			versionMapping {
+				usage('java-api') {
+					fromResolutionOf('runtimeClasspath')
+				}
+				usage('java-runtime') {
+					fromResolutionResult()
+				}
+			}
+			groupId = project.group
+			artifactId = 'toolbox'
+			version = project.version
+			
+			from components.java
+			
+			pom {
+				name = 'Chipper Toolbox'
+				description = 'A somewhat opinionated collection of assorted utilities for Java, building upon Google Guava.'
+				url = 'https://github.com/playsawdust/Toolbox'
+				licenses {
+					license {
+						name = 'MIT License'
+						url = 'https://github.com/playsawdust/Toolbox/blob/trunk/LICENSE'
+					}
+				}
+				developers {
+					developer {
+						id = 'unascribed'
+						name = 'Una Thompson'
+						email = 'me@unascribed.com'
+					}
+					developer {
+						id = 'Falkreon'
+						name = 'Isaac Ellingson'
+					}
+				}
+				scm {
+					connection = 'scm:git:https://github.com/playsawdust/Toolbox.git'
+					developerConnection = 'scm:git:ssh://git@github.com:playsawdust/Toolbox.git'
+					url = 'https://github.com/playsawdust/Toolbox'
+				}
+			}
+		}
+	}
+}
+
+tasks.withType(GenerateModuleMetadata) {
+	enabled = false
+}
