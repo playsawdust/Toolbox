@@ -1,8 +1,20 @@
-plugins {
-	id 'java-library'
-	id 'eclipse'
-	id 'net.minecrell.licenser' version '0.4.1'
-	id 'maven-publish'
+buildscript {
+	repositories {
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath "net.minecrell.licenser:net.minecrell.licenser.gradle.plugin:0.4.1"
+	}
+}
+
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+
+// grumble grumble...
+if (!project.getPlugins().hasPlugin('net.minecrell.licenser')) {
+	apply plugin: 'net.minecrell.licenser'
 }
 
 group = 'com.playsawdust'
