@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+
+import com.google.common.base.Ascii;
 import com.google.common.io.BaseEncoding;
 
 /**
@@ -139,7 +141,7 @@ public final class Slice {
 	}
 
 	public static Slice fromHex(String s) {
-		return new Slice(HEX.decode(s));
+		return new Slice(HEX.decode(Ascii.toUpperCase(s)));
 	}
 
 	public static Slice fromBase64(String s) {

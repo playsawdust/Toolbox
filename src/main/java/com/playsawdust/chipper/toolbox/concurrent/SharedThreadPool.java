@@ -30,7 +30,7 @@ import com.google.common.util.concurrent.SettableFuture;
 
 /**
  * A shared asynchronous thread pool, for slow tasks that should not
- * freeze the main thread.
+ * freeze an important thread.
  */
 public class SharedThreadPool {
 	private static final AtomicInteger threadNum = new AtomicInteger(1);
@@ -41,6 +41,7 @@ public class SharedThreadPool {
 			});
 	static {
 		// double the processor count for IO-bound tasks
+		// (generally the most common kind of task submitted to a shared pool)
 		SVC.setMaximumPoolSize(Runtime.getRuntime().availableProcessors()*2);
 		// avoids a possible memory leak (exasperated by lambda capturing)
 		SVC.setRemoveOnCancelPolicy(true);

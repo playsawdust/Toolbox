@@ -25,7 +25,7 @@ import java.util.function.Function;
 public interface ExceptableFunction<T, R> {
 	R apply(T t) throws Exception;
 	
-	static <T, R> Function<T, R> exceptionally(ExceptableFunction<T, R> in) {
+	static <T, R> Function<T, R> exceptably(ExceptableFunction<T, R> in) {
 		return (t) -> {
 			try {
 				return in.apply(t);

@@ -24,7 +24,7 @@ package com.playsawdust.chipper.toolbox;
  * Meant for simulating pass-by-reference in Java.
  * Should be kept in a final field.
  */
-public class StrongReference<T> {
+public final class StrongReference<T> {
 	private T t;
 	public StrongReference() {}
 	public StrongReference(T t) {

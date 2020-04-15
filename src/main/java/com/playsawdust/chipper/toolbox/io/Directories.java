@@ -59,6 +59,9 @@ public class Directories {
 
 	private static String appLowerName = "unknown-toolbox-app";
 	private static String appName = "Unknown Toolbox App";
+	
+	private static String addonsLowerName = "addons";
+	private static String addonsName = "Addons";
 
 	private static PlatformDirectoryProvider impl;
 
@@ -78,8 +81,8 @@ public class Directories {
 
 	/**
 	 * Explicitly set the PlatformDirectoryProvider to a PortableDirectoryProvider initialized with
-	 * the app name. This will make the directory {@code ./My App/config} be used as the
-	 * {@link #getConfigHome config home}.
+	 * the app name. This will make the directory {@code ./My App/Config} be used as the
+	 * {@link #getConfigHome config home}, for example.
 	 */
 	public static void setPortableProvider() {
 		synchronized (Directories.class) {
@@ -102,6 +105,23 @@ public class Directories {
 			if (impl != null) throw new IllegalStateException("Provider already initialized");
 			appLowerName = lowerName;
 			appName = name;
+		}
+	}
+	
+	/**
+	 * Set this app's preferred name for the addons directory. Used for {@link #getAddonHome} on
+	 * platforms where the directory for that home is shared with another home and differentiation
+	 * is required.
+	 * <p>
+	 * Defaults to "addons", "Addons".
+	 * @param lowerName the lowercase hyphenated name for addons (e.g. "plugins", "addons")
+	 * @param name the proper-case name for addons (e.g. "Plugins", "Addons")
+	 */
+	public static void setAddonsDirectoryName(String lowerName, String name) {
+		synchronized (Directories.class) {
+			if (impl != null) throw new IllegalStateException("Provider already initialized");
+			addonsLowerName = lowerName;
+			addonsName = name;
 		}
 	}
 
@@ -132,7 +152,7 @@ public class Directories {
 	 * Some platforms use "Title Case" names, while others use "snake-case" names. Windows, macOS,
 	 * and portable distributions use Title Case. Linux and bare directories use snake-case.
 	 * <p>
-	 * If adding your own directories under the predefined Chipper directories, you should check
+	 * If adding your own directories under the predefined directories, you should check
 	 * this to ensure your names fit in.
 	 *
 	 * @return {@code true} if "Title Case" names should be used for subdirectories, {@code false}
@@ -321,7 +341,7 @@ public class Directories {
 		@Override
 		@NonNull
 		public File getAddonHome() {
-			return ensureCreated(new File(getHome(), properCase ? "Addons" : "addons"));
+			return ensureCreated(new File(getHome(), properCase ? addonsName : addonsLowerName));
 		}
 
 		@Override
@@ -393,7 +413,7 @@ public class Directories {
 		@Override
 		@NonNull
 		public File getAddonHome() {
-			return ensureCreated(new File(getLibrary("Application Support"), appName+"/Addons"));
+			return ensureCreated(new File(getLibrary("Application Support"), appName+"/"+addonsName));
 		}
 
 		private File getLibrary(String base) {
@@ -452,7 +472,7 @@ public class Directories {
 		@Override
 		@NonNull
 		public File getAddonHome() {
-			return ensureCreated(new File(getRoaming(), "Addons"));
+			return ensureCreated(new File(getRoaming(), addonsName));
 		}
 
 		@Override
@@ -515,7 +535,7 @@ public class Directories {
 		@Override
 		@NonNull
 		public File getAddonHome() {
-			return ensureCreated(new File(getDataHome(), "addons"));
+			return ensureCreated(new File(getDataHome(), addonsLowerName));
 		}
 
 		/**
@@ -554,7 +574,7 @@ public class Directories {
 			if (dir == null) {
 				log.warn("Synthesizing runtime directory, as $XDG_RUNTIME_DIR is unset");
 				dir = new File(System.getProperty("java.io.tmpdir"));
-				dir = ensureCreated(new File(dir, appName+"-"+System.getProperty("user.name")));
+				dir = ensureCreated(new File(dir, appLowerName+"_"+System.getProperty("user.name")));
 			}
 			try {
 				Files.setPosixFilePermissions(dir.toPath(), PosixFilePermissions.fromString("rwx------"));
