@@ -24,7 +24,7 @@ And you can add Toolbox as a dependency as such:
 
 ```gradle
 dependencies {
-	implementation "com.playsawdust:toolbox:2.1.2"
+	implementation "com.playsawdust:toolbox:2.1.3"
 }
 ```
 
