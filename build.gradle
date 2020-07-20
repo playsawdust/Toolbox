@@ -34,7 +34,7 @@ dependencies {
 }
 
 license {
-	header = file('LICENSE')
+	header = file('HEADER')
 	include '**/*.java'
 	exclude '**/RandomXoshiro256StarStar.java'
 }
