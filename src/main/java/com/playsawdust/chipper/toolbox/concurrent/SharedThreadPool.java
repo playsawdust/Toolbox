@@ -34,17 +34,53 @@ import com.google.common.util.concurrent.SettableFuture;
  */
 public class SharedThreadPool {
 	private static final AtomicInteger threadNum = new AtomicInteger(1);
-	private static final ScheduledThreadPoolExecutor SVC = new ScheduledThreadPoolExecutor(2, (r) -> {
-				Thread t = new Thread(r, "SharedThreadPool Worker #"+threadNum.getAndIncrement());
-				t.setDaemon(true);
-				return t;
-			});
-	static {
-		// double the processor count for IO-bound tasks
-		// (generally the most common kind of task submitted to a shared pool)
-		SVC.setMaximumPoolSize(Runtime.getRuntime().availableProcessors()*2);
-		// avoids a possible memory leak (exasperated by lambda capturing)
-		SVC.setRemoveOnCancelPolicy(true);
+	
+	private static boolean holderAccessed = false;
+	private static Runnable initializer;
+	private static Runnable finalizer;
+	
+	private static final class Holder {
+		private static final ScheduledThreadPoolExecutor SVC  = new ScheduledThreadPoolExecutor(2, (r) -> {
+			Thread t = new Thread(() -> {
+				if (initializer != null) {
+					initializer.run();
+				}
+				try {
+					r.run();
+				} finally {
+					if (finalizer != null) {
+						finalizer.run();
+					}
+				}
+			}, "SharedThreadPool Worker #"+threadNum.getAndIncrement());
+			t.setDaemon(true);
+			return t;
+		});
+		
+		static {
+			// double the processor count for IO-bound tasks
+			// (generally the most common kind of task submitted to a shared pool)
+			SVC.setMaximumPoolSize(Runtime.getRuntime().availableProcessors()*2);
+			// avoids a possible memory leak (exasperated by lambda capturing)
+			SVC.setRemoveOnCancelPolicy(true);
+		}
+	}
+	
+	/**
+	 * Sets an "initializer" that will run in every thread before it starts executing tasks. Useful
+	 * for initializing a memory allocator or similar.
+	 */
+	public static void setInitializer(Runnable r) {
+		if (holderAccessed) throw new IllegalStateException("SharedThreadPool already initialized");
+		initializer = r;
+	}
+	/**
+	 * Sets a "finalizer" that will run in every thread before it exits. Useful for deallocating
+	 * native resources and such.
+	 */
+	public static void setFinalizer(Runnable r) {
+		if (holderAccessed) throw new IllegalStateException("SharedThreadPool already initialized");
+		finalizer = r;
 	}
 
 	/**
@@ -87,7 +123,8 @@ public class SharedThreadPool {
 	 */
 	public static <T> ListenableFuture<T> schedule(Callable<T> c, long delay, TimeUnit unit) {
 		SettableFuture<T> future = SettableFuture.create();
-		SVC.schedule(() -> {
+		holderAccessed = true;
+		Holder.SVC.schedule(() -> {
 			try {
 				future.set(c.call());
 			} catch (Throwable t) {
