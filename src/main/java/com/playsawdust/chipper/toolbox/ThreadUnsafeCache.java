@@ -144,7 +144,7 @@ public class ThreadUnsafeCache<K, V> {
 	}
 	
 	/**
-	 * Immeidately removes the mapping for the provided key. If the key is not present this method will successfully do nothing.
+	 * Immediately removes the mapping for the provided key. If the key is not present this method will successfully do nothing.
 	 * @param key The key for the mapping to discard
 	 */
 	public void evictNow(K key) {
