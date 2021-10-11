@@ -389,7 +389,16 @@ public class BetterRandom {
 		if (min > max) throw new IllegalArgumentException("min > max");
 		return uniformLong(max-min)+min;
 	}
-
+	
+	/**
+	 * Returns a double with a linear distribution. Random polar coordinates with such a radius will be uniformly
+	 * distributed throughout the circle
+	 * @return a linearly distributed double from the range 0.0d (inclusive) to 1.0d (exclusive)
+	 */
+	public double uniformRadius() {
+		return Math.sqrt(rand.nextDouble());
+	}
+	
 	/**
 	 * Allocate a new byte array and populate it with uniformly random data.
 	 * @param n the number of uniformly random bytes to generate
