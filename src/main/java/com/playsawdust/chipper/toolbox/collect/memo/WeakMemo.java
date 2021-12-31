@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,21 +18,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.playsawdust.chipper.toolbox.memo;
+package com.playsawdust.chipper.toolbox.collect.memo;
 
-import java.util.Map;
-import java.util.function.Function;
+import java.lang.ref.WeakReference;
+import java.util.function.Supplier;
 
-import com.google.common.collect.MapMaker;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class WeakValueMemoMap<K,V> extends MemoMap<K,V> {
+public class WeakMemo<T> extends Memo<T> {
+	private WeakReference<T> memo = new WeakReference<>(null);
 
-	public WeakValueMemoMap(Function<K,V> supplier) {
-		super(supplier);
+	public WeakMemo(Supplier<@NonNull T> provider) {
+		super(provider);
+	}
+
+	public WeakMemo(T initial, Supplier<@NonNull T> provider) {
+		super(provider);
+		memo = new WeakReference<>(initial);
 	}
 
 	@Override
-	protected Map<K,V> getMemo() {
-		return new MapMaker().weakValues().concurrencyLevel(1).makeMap();
+	public void supply(T t) {
+		memo = new WeakReference<>(t);
+	}
+
+	@Override
+	public T get() {
+		T t = memo.get();
+		if (t == null) {
+			t = provider.get();
+			memo = new WeakReference<>(t);
+		}
+		return t;
 	}
 }

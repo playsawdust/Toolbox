@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * instance which is not shared.
  *
  * @see <a href="http://xoshiro.di.unimi.it/">http://xoshiro.di.unimi.it/</a>
- * @author David Blackman and Sebastiano Vigna &lt;vigna@acm.org> (original C code)
- * @author Una Thompson &lt;una@unascribed.com> (Java port)
+ * @author David Blackman and Sebastiano Vigna &lt;vigna@acm.org&gt; (original C code)
+ * @author Una Thompson &lt;una@unascribed.com&gt; (Java port)
  */
 public class RandomXoshiro256StarStar extends Random {
 	private static final long serialVersionUID = -2837799889588687855L;

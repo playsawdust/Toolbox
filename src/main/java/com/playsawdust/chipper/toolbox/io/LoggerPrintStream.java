@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -21,14 +21,12 @@
 package com.playsawdust.chipper.toolbox.io;
 
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteStreams;
 
 import org.slf4j.Logger;
 
@@ -37,9 +35,9 @@ import org.slf4j.Logger;
  * performing stack traces.
  */
 public class LoggerPrintStream extends PrintStream {
-	private static final Splitter NEWLINE_SPLITTER = Splitter.on('\n');
+	private static final Pattern NEWLINE_PATTERN = Pattern.compile("\n", Pattern.LITERAL);
 
-	private static final ImmutableSet<String> SKIP_CLASSES = ImmutableSet.of(
+	private static final Set<String> SKIP_CLASSES = Set.of(
 			"java.lang.Throwable" // to correctly implicate printStackTrace
 		);
 
@@ -58,7 +56,7 @@ public class LoggerPrintStream extends PrintStream {
 	}
 
 	public LoggerPrintStream(String label, boolean warn) {
-		super(ByteStreams.nullOutputStream());
+		super(NullOutputStream.INSTANCE);
 		this.warn = warn;
 		log = LoggerFactory.getLogger(label);
 	}
@@ -90,7 +88,7 @@ public class LoggerPrintStream extends PrintStream {
 	public void print(String s) {
 		synchronized (accum) {
 			if (s.contains("\n")) {
-				for (String line : NEWLINE_SPLITTER.split(s)) {
+				for (String line : NEWLINE_PATTERN.split(s)) {
 					accum.append(line);
 					flush();
 				}
@@ -178,7 +176,7 @@ public class LoggerPrintStream extends PrintStream {
 
 	@Override
 	public void write(byte[] buf, int off, int len) {
-		print(new String(buf, off, len, Charsets.UTF_8));
+		print(new String(buf, off, len, StandardCharsets.UTF_8));
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,20 +18,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.playsawdust.chipper.toolbox.memo;
+package com.playsawdust.chipper.toolbox.io;
 
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.function.Function;
+import java.io.OutputStream;
 
-public class WeakKeyMemoMap<K,V> extends MemoMap<K,V> {
+public class NullOutputStream extends OutputStream {
 
-	public WeakKeyMemoMap(Function<K,V> supplier) {
-		super(supplier);
-	}
+	public static final NullOutputStream INSTANCE = new NullOutputStream();
 
 	@Override
-	protected Map<K,V> getMemo() {
-		return new WeakHashMap<>();
+	public void write(int b) {}
+
+	@Override
+	public void write(byte[] b) {}
+
+	@Override
+	public void write(byte[] b, int off, int len) {}
+
+	@Override
+	public void flush() {}
+
+	@Override
+	public void close() {}
+	
+	@Override
+	public String toString() {
+		return "NullOutputStream.INSTANCE";
 	}
+	
+	private NullOutputStream() {}
+	
 }

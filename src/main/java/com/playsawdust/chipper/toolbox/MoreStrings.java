@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -21,15 +21,10 @@
 package com.playsawdust.chipper.toolbox;
 
 import java.util.Locale;
-
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
+import java.util.regex.Pattern;
 
 public class MoreStrings {
-	private static final CharMatcher WHITESPACE = CharMatcher.whitespace();
-	private static final Splitter WHITESPACE_SPLITTER = Splitter.on(WHITESPACE);
-	private static final Splitter WHITESPACE_SINGLE_SPLITTER = WHITESPACE_SPLITTER.limit(2);
+	private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\p{javaWhitespace}");
 	
 	private MoreStrings() {}
 	
@@ -38,7 +33,7 @@ public class MoreStrings {
 	 * first {@link Character#isWhitespace whitespace}.
 	 */
 	public static String firstWord(String s) {
-		return Iterables.getFirst(WHITESPACE_SINGLE_SPLITTER.split(s), "");
+		return WHITESPACE_PATTERN.split(s, 2)[0];
 	}
 
 	/**
@@ -46,7 +41,8 @@ public class MoreStrings {
 	 * characters occuring after the first {@link Character#isWhitespace whitespace}.
 	 */
 	public static String exceptFirstWord(String s) {
-		return Iterables.getLast(WHITESPACE_SINGLE_SPLITTER.split(s), "");
+		String[] split = WHITESPACE_PATTERN.split(s, 2);
+		return split[split.length-1];
 	}
 
 	/**

@@ -19,7 +19,7 @@ if (!project.getPlugins().hasPlugin('net.minecrell.licenser')) {
 
 group = 'com.playsawdust'
 archivesBaseName = 'toolbox'
-version = '2.1.4'
+version = '2.2.0'
 
 repositories {
 	mavenCentral()
@@ -27,7 +27,8 @@ repositories {
 
 dependencies {
 	api 'org.slf4j:slf4j-api:1.7.9'
-	api 'com.google.guava:guava:28.2-jre'
+	api 'com.google.guava:listenablefuture:1.0'
+	api 'org.checkerframework:checker-qual:3.21.0'
 	
 	compileOnly 'net.java.dev.jna:jna:5.0.0'
 	compileOnly 'net.java.dev.jna:jna-platform:5.0.0'
@@ -69,7 +70,7 @@ publishing {
 			
 			pom {
 				name = 'Chipper Toolbox'
-				description = 'A somewhat opinionated collection of assorted utilities for Java, building upon Google Guava.'
+				description = 'A somewhat opinionated collection of assorted utilities for Java, designed for use with Google Guava.'
 				url = 'https://github.com/playsawdust/Toolbox'
 				licenses {
 					license {

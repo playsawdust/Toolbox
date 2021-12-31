@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,7 +20,9 @@
 
 package com.playsawdust.chipper.toolbox.miniansi;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class AnsiGroup implements Ansi {
 	private final AnsiCode[] codes;
@@ -32,11 +34,11 @@ public final class AnsiGroup implements Ansi {
 		return Ansi.Utils.toString(codes);
 	}
 	@Override
-	public ImmutableList<Integer> getCodes() {
-		ImmutableList.Builder<Integer> builder = ImmutableList.builder();
+	public List<Integer> getCodes() {
+		List<Integer> li = new ArrayList<>();
 		for (AnsiCode code : codes) {
-			builder.addAll(code.getCodes());
+			li.addAll(code.getCodes());
 		}
-		return builder.build();
+		return Collections.unmodifiableList(li);
 	}
 }

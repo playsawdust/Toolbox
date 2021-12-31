@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 
 /**
  * A shared asynchronous thread pool, for slow tasks that should not
@@ -122,7 +121,7 @@ public class SharedThreadPool {
 	 * return value.
 	 */
 	public static <T> ListenableFuture<T> schedule(Callable<T> c, long delay, TimeUnit unit) {
-		SettableFuture<T> future = SettableFuture.create();
+		SimpleFuture<T> future = new SimpleFuture<>();
 		holderAccessed = true;
 		Holder.SVC.schedule(() -> {
 			try {

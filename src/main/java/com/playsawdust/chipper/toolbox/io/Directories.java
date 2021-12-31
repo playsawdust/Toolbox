@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -22,12 +22,15 @@ package com.playsawdust.chipper.toolbox.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Locale;
+
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -38,8 +41,6 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.KnownFolders;
 import com.sun.jna.platform.win32.Shell32Util;
-
-import com.google.common.base.Ascii;
 
 /**
  * An abstraction for platform-specific directories using wording from the XDG Base Directories
@@ -173,7 +174,7 @@ public class Directories {
 		if (shouldUseTitleNames()) {
 			return str;
 		} else {
-			return Ascii.toLowerCase(str).replace(' ', '-');
+			return str.toLowerCase(Locale.ROOT).replace(' ', '-');
 		}
 	}
 
@@ -288,7 +289,7 @@ public class Directories {
 						}
 					});
 				} catch (IOException e) {
-					LoggerFactory.getLogger("Directories").warn("Failed to delete {}", dir, e);
+					LoggerFactory.getLogger("Toolbox").warn("Failed to delete {}", dir, e);
 				}
 			}, "Runtime directory cleanup thread"));
 		}
@@ -425,7 +426,11 @@ public class Directories {
 		@EnsuresNonNull("this.runtimeDir")
 		public File getRuntimeDir() {
 			if (runtimeDir == null) {
-				runtimeDir = com.google.common.io.Files.createTempDir();
+				try {
+					runtimeDir = Files.createTempDirectory(appName+"-run").toFile();
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
 				deleteOnExit(runtimeDir);
 			}
 			return runtimeDir;

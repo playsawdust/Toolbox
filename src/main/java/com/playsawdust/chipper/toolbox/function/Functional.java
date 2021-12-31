@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -27,25 +27,26 @@ import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 
 public class Functional {
 
 	@Nullable
-	public static <T, U> U safely(@Nullable T maybe, @Nonnull Function<T, U> proc) {
+	public static <T, U> U safely(@Nullable T maybe, @NonNull Function<T, U> proc) {
 		return (maybe == null) ? null : proc.apply(maybe);
 	}
 
-	public static <T, U> U safely(@Nullable T maybe, @Nonnull Function<T, U> proc, @Nonnull Supplier<U> fallback) {
+	public static <T, U> U safely(@Nullable T maybe, @NonNull Function<T, U> proc, @NonNull Supplier<U> fallback) {
 		return (maybe == null) ? fallback.get() : proc.apply(maybe);
 	}
 
-	public static <T, U, V> V safely(@Nullable T maybe, @Nonnull Function<T, U> proc, @Nonnull Function<U, V> proc2, @Nonnull Supplier<V> fallback) {
+	public static <T, U, V> V safely(@Nullable T maybe, @NonNull Function<T, U> proc, @NonNull Function<U, V> proc2, @NonNull Supplier<V> fallback) {
 		return (maybe == null) ? fallback.get() : safely(proc.apply(maybe), proc2, fallback);
 	}
 
-	public static <T, U, V, W> W safely(@Nullable T maybe, @Nonnull Function<T, U> proc, @Nonnull Function<U, V> proc2, @Nonnull Function<V, W> proc3, @Nonnull Supplier<W> fallback) {
+	public static <T, U, V, W> W safely(@Nullable T maybe, @NonNull Function<T, U> proc, @NonNull Function<U, V> proc2, @NonNull Function<V, W> proc3, @NonNull Supplier<W> fallback) {
 		return (maybe == null) ? fallback.get() : safely(proc.apply(maybe), proc2, proc3, fallback);
 	}
 

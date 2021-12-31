@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -24,20 +24,14 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
-import com.google.common.base.Ascii;
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.io.BaseEncoding;
 
 /**
  * Utility class for encoding binary data in "canonical" hexdump format, as output by
  * {@code hexdump -C}.
  */
 public final class Hexdump {
-
-	private static final BaseEncoding HEX_BYTES = BaseEncoding.base16().lowerCase().withSeparator(" ", 2);
 
 	/**
 	 * @see #encode(byte[])
@@ -93,7 +87,7 @@ public final class Hexdump {
 		byte[] buf = new byte[16];
 		int printed = 0;
 		StringBuilder sb = new StringBuilder();
-		CharsetDecoder dec = Charsets.US_ASCII.newDecoder()
+		CharsetDecoder dec = StandardCharsets.US_ASCII.newDecoder()
 			.onUnmappableCharacter(CodingErrorAction.REPLACE)
 			.onMalformedInput(CodingErrorAction.REPLACE)
 			.replaceWith(".");
@@ -115,25 +109,25 @@ public final class Hexdump {
 					continue;
 				}
 			}
-			sb.append(Strings.padStart(Integer.toHexString(printed), 8, '0'));
+			appendPadded(sb, Integer.toHexString(printed), 8, '0');
 			sb.append("  ");
 			if (count < 8) {
-				sb.append(HEX_BYTES.encode(buf, 0, count));
+				toHex(sb, buf, 0, count);
 				for (int i = 0; i < 16-count; i++) {
 					sb.append("   ");
 				}
 				sb.append(" ");
 			} else if (count < 16) {
-				sb.append(HEX_BYTES.encode(buf, 0, 8));
+				toHex(sb, buf, 0, 8);
 				sb.append("  ");
-				sb.append(HEX_BYTES.encode(buf, 8, count-8));
+				toHex(sb, buf, 8, count-8);
 				for (int i = 0; i < 8-(count-8); i++) {
 					sb.append("   ");
 				}
 			} else {
-				sb.append(HEX_BYTES.encode(buf, 0, 8));
+				toHex(sb, buf, 0, 8);
 				sb.append("  ");
-				sb.append(HEX_BYTES.encode(buf, 8, 8));
+				toHex(sb, buf, 8, 8);
 			}
 			sb.append("  |");
 			decOut.rewind();
@@ -143,7 +137,7 @@ public final class Hexdump {
 			dec.decode(bufBuf, decOut, true);
 			for (int i = 0; i < count; i++) {
 				char c = decOutArr[i];
-				if (c <= Ascii.US || c >= Ascii.DEL) {
+				if (c < 0x20 || c >= 0x7F) {
 					decOutArr[i] = '.';
 				}
 			}
@@ -152,8 +146,25 @@ public final class Hexdump {
 			dec.reset();
 			printed += count;
 		}
-		sb.append(Strings.padStart(Integer.toHexString(printed), 8, '0'));
+		appendPadded(sb, Integer.toHexString(printed), 8, '0');
 		return sb.toString();
+	}
+
+	private static void toHex(StringBuilder sb, byte[] buf, int ofs, int len) {
+		for (int i = 0; i < len; i++) {
+			int v = buf[ofs+i]&0xFF;
+			sb.append(Character.forDigit(v>>4, 16));
+			sb.append(Character.forDigit(v&0xF, 16));
+			sb.append(" ");
+		}
+		sb.setLength(sb.length()-1);
+	}
+
+	private static void appendPadded(StringBuilder sb, String str, int minLength, char pad) {
+		for (int i = 0; i < minLength-str.length(); i++) {
+			sb.append(pad);
+		}
+		sb.append(str);
 	}
 
 	private Hexdump() {}

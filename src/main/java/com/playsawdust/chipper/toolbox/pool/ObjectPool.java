@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -29,9 +29,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
 /**
  * Represents a thread-local pool of objects. Keeps object allocations down and
  * the GC happy.
@@ -55,7 +52,7 @@ public class ObjectPool<T> implements Supplier<T> {
 	public static void enableStats(boolean autoprint) {
 		if (enableStats) return;
 		enableStats = true;
-		allPools = Lists.newArrayList();
+		allPools = new ArrayList<>();
 		if (autoprint) {
 			Thread t = new Thread(() -> {
 				while (true) {
@@ -98,7 +95,11 @@ public class ObjectPool<T> implements Supplier<T> {
 	}
 
 	private static String pad(int i) {
-		return Strings.padStart(statsFormatter.format(i), 9, ' ');
+		String s = statsFormatter.format(i);
+		if (s.length() < 9) {
+			s = " ".repeat(9-s.length())+s;
+		}
+		return s;
 	}
 
 	private final ThreadLocal<ArrayList<T>> pool = ThreadLocal.withInitial(ArrayList::new);

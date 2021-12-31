@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,22 +20,18 @@
 
 package com.playsawdust.chipper.toolbox.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-
-import com.google.common.base.Ascii;
-import com.google.common.io.BaseEncoding;
+import java.util.Base64;
+import java.util.Locale;
 
 /**
  * An immutable view into a byte array.
  */
 public final class Slice {
-	private static final BaseEncoding HEX = BaseEncoding.base16();
-	private static final BaseEncoding B64 = BaseEncoding.base64();
-	private static final BaseEncoding DEBUG_HEX = BaseEncoding.base16().withSeparator(" ", 2).lowerCase();
-
 	private final byte[] arr;
 	private final int ofs;
 	private final int len;
@@ -115,7 +111,12 @@ public final class Slice {
 
 	@Override
 	public String toString() {
-		return "Slice ["+DEBUG_HEX.encode(arr, ofs, len)+"]";
+		StringBuilder asc = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			int v = (get(i)&0xFF);
+			asc.append(v < 0x20 || v >= 0x7F ? '.' : (char)v);
+		}
+		return "Slice["+len+" bytes; "+toHex()+" | "+asc+"]";
 	}
 
 	public String toString(Charset charset) {
@@ -127,11 +128,22 @@ public final class Slice {
 	}
 
 	public String toHex() {
-		return HEX.encode(arr, ofs, len);
+		return toHex("");
+	}
+	
+	public String toHex(String delimiter) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			int v = (get(i)&0xFF);
+			sb.append(Integer.toHexString(v|0xF00).substring(1).toUpperCase(Locale.ROOT));
+			sb.append(delimiter);
+		}
+		sb.setLength(sb.length()-delimiter.length());
+		return sb.toString();
 	}
 
 	public String toBase64() {
-		return B64.encode(arr, ofs, len);
+		return Base64.getEncoder().encodeToString(toByteArray());
 	}
 
 	public static byte[] of(byte[] arr, int ofs, int len) {
@@ -141,11 +153,19 @@ public final class Slice {
 	}
 
 	public static Slice fromHex(String s) {
-		return new Slice(HEX.decode(Ascii.toUpperCase(s)));
+		if ((s.length()&1) != 0) throw new IllegalArgumentException("Invalid hex - length is not even: "+s);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		for (int i = 0; i < s.length(); i += 2) {
+			int lhs = Character.digit(s.charAt(i), 16);
+			int rhs = Character.digit(s.charAt(i+1), 16);
+			int value = (lhs << 4) | rhs;
+			baos.write(value);
+		}
+		return new Slice(baos.toByteArray());
 	}
 
 	public static Slice fromBase64(String s) {
-		return new Slice(B64.decode(s));
+		return new Slice(Base64.getDecoder().decode(s));
 	}
 
 	public static Slice fromString(String s, Charset charset) {
@@ -154,6 +174,45 @@ public final class Slice {
 
 	public static Slice fromString(String s, String charset) {
 		return fromString(s, Charset.forName(charset));
+	}
+
+	/**
+	 * Convenience method to construct a Slice from a readable literal. Not intended for data
+	 * parsing - no validation is performed and various errors can be thrown by this method for
+	 * malformed data.
+	 * <p>
+	 * The format is simple; every pair of characters is interpreted as a hex byte, and any chars
+	 * between square brackets ([ and ]) have their lower 8 bits passed through as-is.
+	 * For example:<br>
+	 * <code>89[PNG\r\n]1A[\n]</code><br>
+	 * will become<br>
+	 * <code>89 50 4E 47 0D 0A 1A 0A | .PNG....</code>
+	 */
+	public static Slice parse(String str) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		boolean inGroup = false;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (inGroup) {
+				if (c == ']') {
+					inGroup = false;
+				} else {
+					baos.write(c&0xFF);
+				}
+			} else {
+				if (c == '[') {
+					inGroup = true;
+				} else {
+					char other = str.charAt(i+1);
+					int lhs = Character.digit(c, 16);
+					int rhs = Character.digit(other, 16);
+					int value = (lhs << 4) | rhs;
+					baos.write(value);
+					i++;
+				}
+			}
+		}
+		return new Slice(baos.toByteArray());
 	}
 
 }

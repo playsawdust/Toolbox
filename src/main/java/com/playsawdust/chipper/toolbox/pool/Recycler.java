@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,9 +20,8 @@
 
 package com.playsawdust.chipper.toolbox.pool;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 /**
  * Convenience class for managing many {@link PooledObject}s at once
@@ -35,13 +34,11 @@ import com.google.common.collect.Lists;
  * }
  * // the color and rect are recycled automatically
  * </pre>
- * @see {@link com.google.common.io.Closer Closer}, the Closeable equivalent from Guava that
- * 		inspired this class
  */
 public class Recycler implements PooledObject {
 	private static final ObjectPool<Recycler> pool = new ObjectPool<>(Recycler::new);
 
-	private List<PooledObject> list = Lists.newArrayList();
+	private List<PooledObject> list = new ArrayList<>();
 
 	private Recycler() {}
 

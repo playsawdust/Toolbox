@@ -1,6 +1,6 @@
 /*
  * Chipper Toolbox - a somewhat opinionated collection of assorted utilities for Java
- * Copyright (c) 2019 - 2020 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
+ * Copyright (c) 2019 - 2022 Una Thompson (unascribed), Isaac Ellingson (Falkreon)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,22 +26,22 @@ public enum Ternary {
 	MAYBE;
 	
 	public boolean resolve(boolean fallback) {
-		if(this==YES) return true;
-		if(this==NO) return false;
+		if (this == YES) return true;
+		if (this == NO) return false;
 		return fallback;
 	}
 	
 	public boolean or(Ternary other) {
-		return this==YES || other==YES;
+		return this == YES || other == YES;
 	}
 	
 	public boolean and(Ternary other) {
-		return this==YES && other==YES;
+		return this == YES && other == YES;
 	}
 	
 	public Ternary not() {
-		if (this==YES) return NO;
-		if (this==NO) return YES;
+		if (this == YES) return NO;
+		if (this == NO) return YES;
 		return MAYBE;
 	}
 }

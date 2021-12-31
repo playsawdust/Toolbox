@@ -3,7 +3,9 @@
 # Chipper Toolbox
 ![Current version](https://img.shields.io/maven-metadata/v?label=current%20version&metadataUrl=https%3A%2F%2Frepo.unascribed.com%2Fcom%2Fplaysawdust%2Ftoolbox%2Fmaven-metadata.xml&style=flat-square)
 
-A somewhat opinionated collection of assorted utilities for Java, building upon Google Guava.
+A somewhat opinionated collection of assorted utilities for Java 11, designed for use alongside
+Google Guava (Toolbox no longer depends on Guava as of 2.2.0).
+
 Toolbox has a long and storied history being carried around between various projects, with the first
 inklings of it appearing in 2012, before assuming its final form as Toolbox under the Chipper
 project in 2019.
@@ -24,7 +26,7 @@ And you can add Toolbox as a dependency as such:
 
 ```gradle
 dependencies {
-	implementation "com.playsawdust:toolbox:2.1.4"
+	implementation "com.playsawdust:toolbox:2.2.0"
 }
 ```
 
