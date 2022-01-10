@@ -26,7 +26,7 @@ And you can add Toolbox as a dependency as such:
 
 ```gradle
 dependencies {
-	implementation "com.playsawdust:toolbox:2.2.0"
+	implementation "com.playsawdust:toolbox:2.2.1"
 }
 ```
 
@@ -40,7 +40,7 @@ a large library.
 You can pull in the required JNA libraries in Gradle like so:
 ```gradle
 dependencies {
-	implementation 'net.java.dev.jna:jna:5.0.0'
-	implementation 'net.java.dev.jna:jna-platform:5.0.0'
+	implementation 'net.java.dev.jna:jna:5.10.0'
+	implementation 'net.java.dev.jna:jna-platform:5.10.0'
 }
 ```
